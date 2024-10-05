@@ -1,0 +1,521 @@
+
+
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+
+local Window = Rayfield:CreateWindow({
+	Name = "Adopt Me Hub",
+	LoadingTitle = "Adopt Me Interface Suite",
+	LoadingSubtitle = "by AMH",
+	ConfigurationSaving = {
+		Enabled = false,
+		FolderName = nil,
+		FileName = "Big Hub"
+	},
+	Discord = {
+		Enabled = false,
+		Invite = "noinvitelink",
+		RememberJoins = true
+	},
+	KeySystem = false,
+	KeySettings = {
+		Title = "Untitled",
+		Subtitle = "Key System",
+		Note = "No method of obtaining the key is provided",
+		FileName = "Key",
+		SaveKey = true,
+		GrabKeyFromSite = false,
+		Key = {"Hello"}
+	}
+})
+
+function Nothication(Text)
+	Rayfield:Notify({
+		Title = "Error",
+		Content = Text,
+		Duration = 3,
+		Image = nil,
+		Actions = {
+			Ignore = {
+				Name = "Okay!",
+				Callback = function()
+
+				end
+			},
+		},
+	})
+end
+
+local Stores = {
+	"CoffeeShop",
+	"Supermarket",
+	"PizzaShop",
+	"ToyShop",
+	"Obbies",
+	"CampingShop",
+	"AutoShop",
+	"Nursery",
+	"Cave",
+	"IceCream",
+	"PotionShop",
+	"SkyCastle",
+	"Hospital",
+	"HatShop",
+	"PetShop",
+	"School",
+	"BabyShop",
+	"SafetyHub",
+	"DebugInterior",
+	"VIP",
+	"Salon",
+}
+
+local Player = game.Players.LocalPlayer
+
+local Location = nil
+for i,v in next, getgc() do
+	if type(v) == "function" and islclosure(v) then
+		if table.find(getconstants(v), "LocationAPI/SetLocation") then
+			Location = v
+		end
+	end
+end
+
+local SetLocation = function(A, B, C)
+	local O = get_thread_identity()
+	set_thread_identity(2)
+	Location(A, B, C)
+	set_thread_identity(7)
+end
+
+local Home = function()
+	if workspace.HouseInteriors.blueprint:FindFirstChildWhichIsA("Model") then
+		return workspace.HouseInteriors.blueprint:FindFirstChildWhichIsA("Model").Name
+	else
+		return false
+	end
+end
+
+local Store = function()
+	if workspace.Interiors:FindFirstChildWhichIsA("Model") then
+		if not string.find(workspace.Interiors:FindFirstChildWhichIsA("Model").Name,"MainMap") and not
+			string.find(workspace.Interiors:FindFirstChildWhichIsA("Model").Name,"Neighborhood")
+		then
+			return workspace.Interiors:FindFirstChildWhichIsA("Model").Name
+		else
+			return false
+		end
+	else
+		return false
+	end
+end
+
+local MainMap = function()
+	if workspace.Interiors:FindFirstChildWhichIsA("Model") then
+		if string.find(workspace.Interiors:FindFirstChildWhichIsA("Model").Name,"MainMap") then
+			return workspace.Interiors:FindFirstChildWhichIsA("Model").Name
+		else
+			return false
+		end
+	else
+		return false
+	end
+end
+
+local Neighborhood = function()
+	if workspace.Interiors:FindFirstChildWhichIsA("Model") then
+		if string.find(workspace.Interiors:FindFirstChildWhichIsA("Model").Name,"Neighborhood") then
+			return workspace.Interiors:FindFirstChildWhichIsA("Model").Name
+		else
+			return false
+		end
+	else
+		return false
+	end
+end
+
+local GoToStore = function(Name)
+	if Store() == Name then
+		return true
+	end
+
+	SetLocation(Name, "MainDoor", {})
+
+	while Store() ~= Name do
+		wait()
+	end
+	if Home() then
+		return true
+	end
+	return false
+end
+
+
+local GoToMainMap = function()
+	SetLocation("MainMap", "Neighborhood/MainDoor", {})
+	while not MainMap() do
+
+		wait()
+	end
+	if MainMap() then
+
+		return true
+	end
+	return false
+end
+
+local GoToNeighborhood = function()
+	SetLocation("Neighborhood", "MainDoor", {})
+	while not Neighborhood() do
+		wait()
+
+	end
+	if Neighborhood() then
+
+		return true
+	end
+	return false
+end
+
+local SelectedEgg = "Garden Egg $750"
+local SelectedStore = "CoffeeShop"
+local PurpleTele = false
+
+local Eggs = {
+	["Garden Egg $750"] = "garden_2024_egg",
+	["Regular Pet Egg $600"] = "regular_pet_egg",
+	["Royal Egg $1450"] = "royal_egg",
+	["Cracked Egg $350"] = "cracked_egg",
+}
+
+local MainTab = Window:CreateTab("Main", nil)
+local AutofarmTab = Window:CreateTab("Autofarm", nil)
+local MiscTab = Window:CreateTab("Misc", nil)
+
+local Section1 = MainTab:CreateSection("Main")
+local Section2 = AutofarmTab:CreateSection("Autofarm")
+local Section3 = MiscTab:CreateSection("Misc")
+
+local Paragraph = AutofarmTab:CreateParagraph({Title = "Halloween Event Info!", Content = "Be sure that you are in the halloween shop, otherwise it will not work"})
+
+local SectionEggs = MiscTab:CreateSection("Eggs")
+
+local Dropdown = MiscTab:CreateDropdown({
+	Name = "Select Egg to buy",
+	Options = {"Garden Egg $750","Regular Pet Egg $600", "Royal Egg $1450", "Cracked Egg $350"},
+	CurrentOption = {"Garden Egg $750"},
+	MultipleOptions = false,
+	Flag = "Dropdown1",
+	Callback = function(Option)
+		for i,v in pairs(Option) do
+			SelectedEgg = Option[i]
+		end
+	end,
+})
+
+local Button = MiscTab:CreateButton({
+	Name = "Buy selected Egg",
+	Callback = function()
+		local args = {
+			[1] = "pets",
+			[2] = Eggs[SelectedEgg],
+			[3] = {}
+		}
+
+		require(game.ReplicatedStorage.Fsys).load("RouterClient").get("ShopAPI/BuyItem"):InvokeServer(unpack(args))
+	end
+})
+
+local SectionTeleport = MiscTab:CreateSection("Teleport")
+
+local Dropdown2 = MiscTab:CreateDropdown({
+	Name = "Teleport to selected Store",
+	Options = Stores,
+	CurrentOption = {"CoffeeShop"},
+	MultipleOptions = false,
+	Flag = "Dropdown2",
+	Callback = function(Option)
+		for i,v in pairs(Option) do
+			SelectedStore = Option[i]
+		end
+	end,
+})
+
+local ButtonStore = MiscTab:CreateButton({
+	Name = "Teleport to selected Store",
+	Callback = function()
+		GoToStore(SelectedStore)
+		Player.Character.HumanoidRootPart.CFrame = workspace.Interiors:FindFirstChildWhichIsA('Model').Doors.MainDoor.WorkingParts.TouchToEnter.CFrame:ToWorldSpace(CFrame.new(0, 0, -6))
+	end
+})
+
+local Slider1 = MainTab:CreateSlider({
+	Name = "Player Walk Speed",
+	Range = {0, 100},
+	Increment = 1,
+	Suffix = "WalkSpeed",
+	CurrentValue = 16,
+	Flag = "Slider1",
+	Callback = function(Value)
+		local player = game.Players.LocalPlayer
+		local character = player.Character or player.CharacterAdded:Wait()
+		local humanoid = character:WaitForChild("Humanoid")
+		
+		humanoid.WalkSpeed = Value		
+	end,
+})
+
+local Slider2 = MainTab:CreateSlider({
+	Name = "Player Jump Power",
+	Range = {0, 250},
+	Increment = 1,
+	Suffix = "JumpPower",
+	CurrentValue = 50,
+	Flag = "Slider2",
+	Callback = function(Value)
+		local player = game.Players.LocalPlayer
+		local character = player.Character or player.CharacterAdded:Wait()
+		local humanoid = character:WaitForChild("Humanoid")
+
+		humanoid.JumpPower = Value	
+	end,
+})
+
+local Button2 = AutofarmTab:CreateButton({
+	Name = "Teleport to all Purple Pumpkins (Mainmap)",
+	Callback = function()
+		if PurpleTele == false then
+			
+			GoToMainMap()
+			Player.Character.HumanoidRootPart.CFrame = workspace.Interiors:FindFirstChildWhichIsA("Model"):GetModelCFrame():ToWorldSpace(CFrame.new(0, 0, -6))
+			Player.Character.HumanoidRootPart.CFrame = CFrame.new(-247.35408, 17.3820152, -1518.88879) 
+			
+			repeat wait(0.1) until workspace.Interiors:FindFirstChild("MainMap!Fall")
+			
+			if workspace.Interiors:FindFirstChild("MainMap!Fall") then
+				PurpleTele = true
+				local targetCFrame = workspace.Interiors["MainMap!Fall"].Event.Halloween2024.PurplePumpkinLocations
+
+				for i,v in pairs(targetCFrame:GetChildren()) do
+					if v:IsA("Part") then
+						v.Transparency = 0
+						local player = game.Players.LocalPlayer
+						local character = player.Character or player.CharacterAdded:Wait()
+
+						character:SetPrimaryPartCFrame(v.CFrame)
+						wait(0.3)
+						v.Transparency = 1
+					end
+				end
+				PurpleTele = false
+			else
+				Nothication("Could not find Player in Mainmap")
+			end
+			
+		else
+			Nothication("Teleport is in progress")
+		end
+	end
+})
+
+
+local Button3 = AutofarmTab:CreateButton({
+	Name = "Teleport to all Purple Pumpkins (Neighborhood)",
+	Callback = function()
+		if PurpleTele == false then
+			
+			GoToNeighborhood()
+			Player.Character.HumanoidRootPart.CFrame = workspace.Interiors:FindFirstChildWhichIsA('Model').Doors.MainDoor.WorkingParts.TouchToEnter.CFrame:ToWorldSpace(CFrame.new(0, 0, -6))
+			
+			repeat wait(0.1) until workspace.Interiors:FindFirstChild("Neighborhood!Fall")
+
+			if workspace.Interiors:FindFirstChild("Neighborhood!Fall") then
+				PurpleTele = true
+				local targetCFrame = workspace.Interiors["Neighborhood!Fall"].PurplePumpkinLocations
+
+				for i,v in pairs(targetCFrame:GetChildren()) do
+					if v:IsA("Part") then
+						v.Transparency = 0
+						local player = game.Players.LocalPlayer
+						local character = player.Character or player.CharacterAdded:Wait()
+
+						character:SetPrimaryPartCFrame(v.CFrame)
+						wait(0.3)
+						v.Transparency = 1
+					end
+				end
+				PurpleTele = false
+			else
+				Nothication("Could not find Player in Neighborhood")
+			end
+
+		else
+			Nothication("Teleport is in progress")
+		end
+	end
+})
+
+local Button4 = AutofarmTab:CreateButton({
+	Name = "Teleport to all Purple Pumpkins (Skycastle)",
+	Callback = function()
+		if PurpleTele == false then
+			
+			GoToStore("SkyCastle")
+			Player.Character.HumanoidRootPart.CFrame = workspace.Interiors:FindFirstChildWhichIsA('Model').Doors.MainDoor.WorkingParts.TouchToEnter.CFrame:ToWorldSpace(CFrame.new(0, 0, -6))
+
+			repeat wait(0.1) until workspace.Interiors:FindFirstChild("SkyCastle")
+
+			if workspace.Interiors:FindFirstChild("SkyCastle") then
+				PurpleTele = true
+				local targetCFrame = workspace.Interiors["SkyCastle"].PurplePumpkinLocations
+
+				for i,v in pairs(targetCFrame:GetChildren()) do
+					if v:IsA("Part") then
+						v.Transparency = 0
+						local player = game.Players.LocalPlayer
+						local character = player.Character or player.CharacterAdded:Wait()
+
+						character:SetPrimaryPartCFrame(v.CFrame)
+						wait(0.3)
+						v.Transparency = 1
+					end
+				end
+				PurpleTele = false
+			else
+				Nothication("Could not find Player in Skycastle")
+			end
+
+		else
+			Nothication("Teleport is in progress")
+		end
+	end
+})
+
+local Autofarm = false
+local Gameplay = true
+local restart = false
+local file = false
+
+
+local Toggle = AutofarmTab:CreateToggle({
+	Name = "Autofarm Halloween Event",
+	CurrentValue = false,
+	Flag = "Toggle1",
+	Callback = function(Value)
+		if Value then
+			Autofarm = true
+			restart = false
+			file = false
+			AutofarmHalloween()
+		else
+			Autofarm = false
+		end
+	end,
+})
+
+function CheckTime()
+	local map = workspace.Interiors:FindFirstChild("Halloween2024Shop")
+	if map then
+		local textLabel = map.TileSkip.JoinZone.Billboard.BillboardGui.TimerLabel
+		local text = textLabel.Text
+		local timeString = string.match(text, "%d%d:%d%d")
+		if timeString then
+			local minutes, seconds = string.match(timeString, "(%d%d):(%d%d)")
+			return (tonumber(minutes) * 60) + tonumber(seconds)
+		end
+	end
+	return false
+end
+
+function Teleport()
+	local player = game.Players.LocalPlayer
+	local character = player.Character or player.CharacterAdded:Wait()
+	if character then
+		local targetCFrame = workspace.Interiors["Halloween2024Shop"].TileSkip.JoinZone.Ring.CFrame
+		character:SetPrimaryPartCFrame(targetCFrame * CFrame.new(8, 0, 0))
+	end
+end
+
+function CheckForFile()
+	return file ~= nil
+end
+
+function AutofarmHalloween()
+	
+	GoToStore("Halloween2024Shop")
+	Player.Character.HumanoidRootPart.CFrame = workspace.Interiors:FindFirstChildWhichIsA('Model').TileSkip.JoinZone.Ring.CFrame:ToWorldSpace(CFrame.new(0, 0, 0))
+
+	repeat wait(0.1) until workspace.Interiors:FindFirstChild("Halloween2024Shop")
+	
+	if workspace.Interiors:FindFirstChild("Halloween2024Shop") then
+		if Autofarm then
+while Gameplay do
+	if Autofarm == false then
+		break
+	end
+	print(restart)
+	
+	if restart then
+		wait(8)
+	end
+	
+	
+	
+				local timer = CheckTime()
+			
+				if timer then
+					Teleport()
+					wait(timer + 8)
+					
+					if Autofarm == false then
+						break
+					end
+					
+					repeat
+						wait(1)
+						if workspace.Interiors:WaitForChild("TileSkipMinigame") then
+							file = true
+						end
+					until CheckForFile()
+					wait(2)
+					
+					for i = 1, 5 do
+						wait(0.5)
+
+						local args = {
+							[1] = "TileSkipMinigame",
+							[2] = tostring(i)
+						}
+
+						require(game.ReplicatedStorage.Fsys).load("RouterClient").get("HalloweenAPI/PurplePumpkinCollected"):FireServer(unpack(args))
+					end
+					
+					repeat
+						wait(1)
+						if workspace.Interiors:FindFirstChild("TileSkipMinigame") then
+						local targetCFrame = workspace.Interiors["TileSkipMinigame"].Minigame:FindFirstChild("GoalPlatform").GoalCollider
+
+						local player = game.Players.LocalPlayer
+						local character = player.Character or player.CharacterAdded:Wait()
+
+						character:SetPrimaryPartCFrame(targetCFrame.CFrame)
+					end
+					until not Autofarm or not workspace.Interiors:FindFirstChild("TileSkipMinigame")
+					
+					restart = true
+					file = false
+	
+				else
+					Nothication("Something went wrong | Please be sure your game is set to english")
+				end
+				
+end
+		end
+	else
+		if Autofarm then
+			wait(0.2)
+			Toggle:Set(false)
+			Nothication("Could not find Player in HalloweenShop")
+		end
+	end
+end
